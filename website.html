@@ -1073,6 +1073,7 @@ async function startWebsite() {
 
 /* LOGOUT */
 
+// LOGOUT
 document.getElementById('logout').addEventListener('click', async () => {
 
   const button = document.getElementById('logout');
@@ -1083,19 +1084,17 @@ document.getElementById('logout').addEventListener('click', async () => {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-
     button.disabled = false;
     button.textContent = 'Logout';
-
     alert(error.message);
     return;
-
   }
 
-  window.location.replace('/');
+  window.location.replace(
+    'https://sayanraul387-hue.github.io/churel-24-ghnata-portal/'
+  );
 
 });
-
 /* MOBILE MENU */
 
 const menuBtn = document.getElementById('menuBtn');
