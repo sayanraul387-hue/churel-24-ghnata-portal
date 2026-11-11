@@ -13,11 +13,11 @@ const supabase = createClient(
   }
 );
 
-// Correct GitHub Pages project URL
+// GitHub Pages Login Portal URL
 const BASE_URL =
   'https://sayanraul387-hue.github.io/churel-24-ghnata-portal/';
 
-// Update page text safely
+// Safe text update
 function setText(id, value) {
   const element = document.getElementById(id);
 
@@ -26,7 +26,7 @@ function setText(id, value) {
   }
 }
 
-// Redirect to Login page
+// Redirect to Login Portal
 function goToLogin() {
   window.location.replace(BASE_URL);
 }
@@ -39,7 +39,7 @@ function goToAdmin() {
 // Start Member Website
 async function startWebsite() {
   try {
-    // 1. Verify login session
+    // 1. Check login session
     const {
       data: { user },
       error: userError
@@ -50,7 +50,7 @@ async function startWebsite() {
       return;
     }
 
-    // 2. Verify account role
+    // 2. Check user role
     const {
       data: roleData,
       error: roleError
@@ -61,18 +61,14 @@ async function startWebsite() {
       .maybeSingle();
 
     if (roleError) {
-      throw new Error(
-        `Role check failed: ${roleError.message}`
-      );
+      throw new Error(`Role check failed: ${roleError.message}`);
     }
 
     if (!roleData) {
-      throw new Error(
-        'Account role not found. Please contact the administrator.'
-      );
+      throw new Error('Account role not found.');
     }
 
-    // 3. Admin must use Admin Dashboard
+    // 3. Admin redirect
     if (roleData.role === 'admin') {
       goToAdmin();
       return;
@@ -95,15 +91,11 @@ async function startWebsite() {
       .maybeSingle();
 
     if (profileError) {
-      throw new Error(
-        `Profile loading failed: ${profileError.message}`
-      );
+      throw new Error(`Profile loading failed: ${profileError.message}`);
     }
 
     if (!profile) {
-      throw new Error(
-        'Member profile is missing. Contact the administrator.'
-      );
+      throw new Error('Member profile is missing.');
     }
 
     setText('welcome', `Hello, ${profile.full_name}!`);
@@ -121,16 +113,10 @@ async function startWebsite() {
       .maybeSingle();
 
     if (contentError) {
-      throw new Error(
-        `Announcement loading failed: ${contentError.message}`
-      );
+      throw new Error(`Announcement loading failed: ${contentError.message}`);
     }
 
-    setText(
-      'notice-title',
-      content?.title || 'Welcome'
-    );
-
+    setText('notice-title', content?.title || 'Welcome');
     setText(
       'notice-body',
       content?.body || 'No announcement available.'
@@ -148,30 +134,34 @@ async function startWebsite() {
 // 6. Member Logout
 const logoutButton = document.getElementById('logout');
 
-logoutButton?.addEventListener('click', async () => {
-  logoutButton.disabled = true;
-  logoutButton.textContent = 'Signing out...';
+if (logoutButton) {
+  logoutButton.addEventListener('click', async () => {
+    logoutButton.disabled = true;
+    logoutButton.textContent = 'Signing out...';
 
-  try {
-    // Sign out from Supabase
-    const { error } = await supabase.auth.signOut();
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
 
-    if (error) {
-      throw error;
+      if (error) {
+        throw error;
+      }
+
+      // Clear local session and return to Login Portal
+      window.location.replace(
+        'https://sayanraul387-hue.github.io/churel-24-ghnata-portal/'
+      );
+
+    } catch (error) {
+      console.error('Logout error:', error);
+
+      logoutButton.disabled = false;
+      logoutButton.textContent = 'Logout';
+
+      alert(`Logout failed: ${error.message}`);
     }
+  });
+}
 
-    // Redirect to correct Login page
-    window.location.replace(BASE_URL);
-
-  } catch (error) {
-    console.error('Logout error:', error);
-
-    logoutButton.disabled = false;
-    logoutButton.textContent = 'Logout';
-
-    alert(`Logout failed: ${error.message}`);
-  }
-});
-
-// 7. Start Member Website
+// 7. Start Website
 startWebsite();
