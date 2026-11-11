@@ -459,7 +459,41 @@ footer strong { color: var(--accent); }
     </div>
 
   </section>
+<!-- MCQ PRACTICE CARD -->
+<section class="container reveal" id="mcq">
 
+  <div class="section-heading">
+    <div class="section-label">Test Your Knowledge</div>
+    <h2>MCQ Practice Zone</h2>
+    <p>Improve your knowledge by participating in multiple-choice quizzes.</p>
+  </div>
+
+  <div class="about-card" style="text-align:center;">
+
+    <div style="font-size:55px; margin-bottom:20px;">📝</div>
+
+    <h3>Online MCQ Examination</h3>
+
+    <p class="description">
+      Practice multiple-choice questions, select your answers
+      and test your knowledge through our online quiz system.
+    </p>
+
+    <button class="primary-btn"
+      type="button"
+      onclick="document.getElementById('mcq-quiz-area').scrollIntoView({behavior:'smooth'})">
+      Enter MCQ Practice →
+    </button>
+
+  </div>
+
+  <div id="mcq-quiz-area" class="mcq-member-card" style="margin-top:25px;">
+    <div id="mcq-member-content">
+      <p class="mcq-muted">Loading available quizzes...</p>
+    </div>
+  </div>
+
+</section>
   <section class="container reveal" id="member">
 
     <div class="section-heading">
