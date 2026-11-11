@@ -329,6 +329,81 @@ footer strong { color: var(--accent); }
     transition-duration: .01ms !important;
   }
 }
+/* CHUREL MCQ HIGHLIGHT SECTION */
+
+.mcq-highlight {
+  position: relative;
+  overflow: hidden;
+  padding: 55px 35px;
+  border-radius: 25px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 10% 10%, #a78bfa55, transparent 35%),
+    linear-gradient(135deg, #24104f, #111827 65%, #31205f);
+  border: 1px solid #a78bfa88;
+  box-shadow: 0 15px 50px #8b5cf633;
+}
+
+.mcq-highlight::before {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border: 1px solid #c4b5fd33;
+  border-radius: 50%;
+  top: -130px;
+  right: -70px;
+}
+
+.mcq-highlight .mcq-icon {
+  font-size: 55px;
+  margin-bottom: 20px;
+}
+
+.mcq-highlight h2 {
+  color: #ffffff;
+  font-size: clamp(25px, 4vw, 38px);
+  font-weight: 900;
+  margin-bottom: 17px;
+}
+
+.mcq-highlight p {
+  color: #ddd6fe;
+  font-size: 15px;
+  line-height: 1.9;
+  max-width: 650px;
+  margin: 0 auto 28px;
+}
+
+.mcq-start-btn {
+  display: inline-block;
+  padding: 16px 30px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #c4b5fd, #7c3aed);
+  color: white;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  box-shadow: 0 8px 25px #8b5cf666;
+  transition: .3s;
+}
+
+.mcq-start-btn:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 35px #8b5cf699;
+}
+
+#mcq-quiz-area {
+  display: none;
+  margin-top: 25px;
+}
+
+@media(max-width:700px) {
+  .mcq-highlight {
+    padding: 40px 20px;
+  }
+}
 </style>
 </head>
 <body>
@@ -353,6 +428,7 @@ footer strong { color: var(--accent); }
       <a href="#about">About</a>
       <a href="#features">Features</a>
       <a href="#member">Member</a>
+      <a href="#mcq">MCQ Practice</a>
       <a href="#mcq">MCQ Practice</a>
       <a href="#contact">Contact Us</a>
     </nav>
@@ -456,7 +532,41 @@ footer strong { color: var(--accent); }
     </div>
 
   </section>
+<!-- MCQ PRACTICE CARD -->
+<section class="container reveal" id="mcq">
 
+  <div class="section-heading">
+    <div class="section-label">Test Your Knowledge</div>
+    <h2>MCQ Practice Zone</h2>
+    <p>Improve your knowledge by participating in multiple-choice quizzes.</p>
+  </div>
+
+  <div class="about-card" style="text-align:center;">
+
+    <div style="font-size:55px; margin-bottom:20px;">📝</div>
+
+    <h3>Online MCQ Examination</h3>
+
+    <p class="description">
+      Practice multiple-choice questions, select your answers
+      and test your knowledge through our online quiz system.
+    </p>
+
+    <button class="primary-btn"
+      type="button"
+      onclick="document.getElementById('mcq-quiz-area').scrollIntoView({behavior:'smooth'})">
+      Enter MCQ Practice →
+    </button>
+
+  </div>
+
+  <div id="mcq-quiz-area" class="mcq-member-card" style="margin-top:25px;">
+    <div id="mcq-member-content">
+      <p class="mcq-muted">Loading available quizzes...</p>
+    </div>
+  </div>
+
+</section>
   <section class="container reveal" id="member">
 
     <div class="section-heading">

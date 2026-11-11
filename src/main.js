@@ -355,9 +355,6 @@ body {
       CHUREL 24 GHNATA PORTAL
     </h1>
 
-    <p class="brand-subtitle">
-      OFFICIAL MEMBER PORTAL
-    </p>
 
     <h2 class="login-heading" id="form-title">
       Welcome Back
