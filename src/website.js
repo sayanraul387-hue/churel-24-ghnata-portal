@@ -13,27 +13,30 @@ const supabase = createClient(
   }
 );
 
-// GitHub Pages base URL
-const BASE_URL = import.meta.env.BASE_URL || '/';
+// Correct GitHub Pages project URL
+const BASE_URL =
+  'https://sayanraul387-hue.github.io/churel-24-ghnata-portal/';
 
+// Update page text safely
 function setText(id, value) {
   const element = document.getElementById(id);
+
   if (element) {
     element.textContent = value ?? '';
   }
 }
 
-// Login page redirect
+// Redirect to Login page
 function goToLogin() {
   window.location.replace(BASE_URL);
 }
 
-// Admin dashboard redirect
+// Redirect to Admin Dashboard
 function goToAdmin() {
   window.location.replace(`${BASE_URL}admin.html`);
 }
 
-// Start member website
+// Start Member Website
 async function startWebsite() {
   try {
     // 1. Verify login session
@@ -58,7 +61,9 @@ async function startWebsite() {
       .maybeSingle();
 
     if (roleError) {
-      throw new Error(`Role check failed: ${roleError.message}`);
+      throw new Error(
+        `Role check failed: ${roleError.message}`
+      );
     }
 
     if (!roleData) {
@@ -67,7 +72,7 @@ async function startWebsite() {
       );
     }
 
-    // 3. Admin must use admin dashboard
+    // 3. Admin must use Admin Dashboard
     if (roleData.role === 'admin') {
       goToAdmin();
       return;
@@ -79,7 +84,7 @@ async function startWebsite() {
       return;
     }
 
-    // 4. Load member profile
+    // 4. Load Member Profile
     const {
       data: profile,
       error: profileError
@@ -105,7 +110,7 @@ async function startWebsite() {
     setText('profile-name', profile.full_name);
     setText('profile-phone', profile.phone);
 
-    // 5. Load admin announcement
+    // 5. Load Admin Announcement
     const {
       data: content,
       error: contentError
@@ -141,38 +146,32 @@ async function startWebsite() {
 }
 
 // 6. Member Logout
-document.getElementById('logout')?.addEventListener(
-  'click',
-  async () => {
-    const button = document.getElementById('logout');
+const logoutButton = document.getElementById('logout');
 
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Signing out...';
+logoutButton?.addEventListener('click', async () => {
+  logoutButton.disabled = true;
+  logoutButton.textContent = 'Signing out...';
+
+  try {
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      throw error;
     }
 
-    try {
-      const { error } = await supabase.auth.signOut();
+    // Redirect to correct Login page
+    window.location.replace(BASE_URL);
 
-      if (error) {
-        throw error;
-      }
+  } catch (error) {
+    console.error('Logout error:', error);
 
-      // Return to the correct GitHub Pages login URL
-      goToLogin();
+    logoutButton.disabled = false;
+    logoutButton.textContent = 'Logout';
 
-    } catch (error) {
-      console.error('Logout error:', error);
-
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Logout';
-      }
-
-      alert(`Logout failed: ${error.message}`);
-    }
+    alert(`Logout failed: ${error.message}`);
   }
-);
+});
 
-// 7. Start website
+// 7. Start Member Website
 startWebsite();
