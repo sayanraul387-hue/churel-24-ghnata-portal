@@ -334,12 +334,12 @@ body {
           <strong>CHUREL</strong>
         </div>
 
-        <img
-          id="logo-image"
-          src="/logo.png"
-          alt="CHUREL Logo"
-          hidden
-        >
+      <img
+  id="logo-image"
+  src="/churel-24-ghnata-portal/logo.png"
+  alt="CHUREL Logo"
+  hidden
+>
 
       </div>
     </div>
