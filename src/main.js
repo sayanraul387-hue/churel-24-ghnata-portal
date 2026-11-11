@@ -3,20 +3,25 @@ import { createClient } from '@supabase/supabase-js';
 import './style.css';
 
 // ==========================================
-// 1. SUPABASE CONFIGURATION
+// 1. CONFIGURATION
 // ==========================================
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const BASE_URL = import.meta.env.BASE_URL || '/';
 const app = document.getElementById('app');
 
-// Remove credentials from browser URL.
-if (window.location.search) {
-  window.history.replaceState(
-    {},
-    document.title,
-    window.location.pathname + window.location.hash
-  );
+function appPath(file = '') {
+  const base = BASE_URL.endsWith('/')
+    ? BASE_URL
+    : `${BASE_URL}/`;
+
+  return `${base}${file.replace(/^\/+/, '')}`;
+}
+
+if (!app) {
+  throw new Error('App element #app was not found.');
 }
 
 if (!supabaseUrl || !supabaseKey) {
@@ -29,13 +34,24 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Supabase configuration missing.');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// ==========================================
+// 2. SUPABASE CLIENT
+// ==========================================
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 let mode = 'login';
 let isSubmitting = false;
+let isRouting = false;
 
 // ==========================================
-// 2. LOGIN PAGE
+// 3. LOGIN PAGE HTML + CSS
 // ==========================================
 
 app.innerHTML = `
@@ -98,8 +114,6 @@ body {
   box-shadow: 0 25px 80px rgba(0,0,0,.4);
 }
 
-/* LOGO */
-
 .logo-frame {
   width: 145px;
   height: 145px;
@@ -152,8 +166,6 @@ body {
   font-size: 34px;
 }
 
-/* BRAND */
-
 .brand-title {
   font-size: 21px;
   font-weight: 800;
@@ -184,8 +196,6 @@ body {
   font-size: 13px;
   margin-bottom: 25px;
 }
-
-/* INPUTS */
 
 .input-group {
   text-align: left;
@@ -242,8 +252,6 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
-
-/* BUTTONS */
 
 .primary-btn {
   width: 100%;
@@ -323,7 +331,6 @@ body {
 </style>
 
 <div class="login-wrapper">
-
   <section class="login-card">
 
     <div class="logo-frame">
@@ -334,12 +341,12 @@ body {
           <strong>CHUREL</strong>
         </div>
 
-      <img
-  id="logo-image"
-  src="/churel-24-ghnata-portal/logo.png"
-  alt="CHUREL Logo"
-  hidden
->
+        <img
+          id="logo-image"
+          src="${new URL('../logo.png', import.meta.url).href}"
+          alt="CHUREL Logo"
+          hidden
+        >
 
       </div>
     </div>
@@ -436,12 +443,11 @@ body {
     © 2026 CHUREL 24 GHNATA PORTAL<br>
     Secure Member Access Portal
   </footer>
-
 </div>
 `;
 
 // ==========================================
-// 3. ELEMENT REFERENCES
+// 4. ELEMENT REFERENCES
 // ==========================================
 
 const form = document.getElementById('auth-form');
@@ -457,12 +463,11 @@ const logoImage = document.getElementById('logo-image');
 const logoPlaceholder = document.getElementById('logo-placeholder');
 
 // ==========================================
-// 4. LOGO
+// 5. LOGO
 // ==========================================
 
 function updateLogo() {
   const hasImage = logoImage.naturalWidth > 0;
-
   logoImage.hidden = !hasImage;
   logoPlaceholder.hidden = hasImage;
 }
@@ -475,7 +480,7 @@ if (logoImage.complete) {
 }
 
 // ==========================================
-// 5. NOTICE
+// 6. NOTICE
 // ==========================================
 
 function showNotice(message, error = false) {
@@ -486,7 +491,7 @@ function showNotice(message, error = false) {
 }
 
 // ==========================================
-// 6. PASSWORD SHOW / HIDE
+// 7. PASSWORD SHOW / HIDE
 // ==========================================
 
 togglePassword.addEventListener('click', () => {
@@ -497,11 +502,11 @@ togglePassword.addEventListener('click', () => {
 });
 
 // ==========================================
-// 7. PHONE NUMBER HELPERS
+// 8. PHONE NUMBER HELPERS
 // ==========================================
 
 function normalizePhone(value) {
-  let digits = value.replace(/\D/g, '');
+  let digits = String(value).replace(/\D/g, '');
 
   if (digits.length === 12 && digits.startsWith('91')) {
     digits = digits.slice(2);
@@ -510,9 +515,8 @@ function normalizePhone(value) {
   return digits;
 }
 
-// Try the two common aliases used by the earlier project.
 function getEmailCandidates(value) {
-  const digits = value.replace(/\D/g, '');
+  const digits = String(value).replace(/\D/g, '');
   const localPhone = normalizePhone(value);
 
   return [
@@ -525,7 +529,7 @@ function getEmailCandidates(value) {
 }
 
 // ==========================================
-// 8. LOGIN / SIGNUP MODE
+// 9. LOGIN / SIGNUP MODE
 // ==========================================
 
 function setMode(nextMode) {
@@ -564,7 +568,7 @@ switchButton.addEventListener('click', () => {
 });
 
 // ==========================================
-// 9. ROLE CHECK
+// 10. ROLE CHECK
 // ==========================================
 
 async function getUserRole(userId) {
@@ -592,32 +596,43 @@ async function getUserRole(userId) {
 }
 
 // ==========================================
-// 10. REDIRECT AFTER LOGIN
+// 11. SAFE REDIRECT
 // ==========================================
 
 async function redirectUser(user) {
-  const role = await getUserRole(user.id);
+  if (isRouting) return;
 
-  const base = import.meta.env.BASE_URL;
+  isRouting = true;
 
-  if (role === 'admin') {
-    window.location.replace(`${base}admin.html`);
-    return;
-  }
+  try {
+    const role = await getUserRole(user.id);
 
-  if (role === 'member') {
-    const { error } = await supabase.rpc('record_member_login');
-
-    if (error) {
-      console.error('Login activity error:', error);
+    if (role === 'admin') {
+      window.location.replace(appPath('admin.html'));
+      return;
     }
 
-    window.location.replace(`${base}website.html`);
+    if (role === 'member') {
+      const { error } = await supabase.rpc('record_member_login');
+
+      if (error) {
+        console.error('Login activity error:', error);
+      }
+
+      window.location.replace(appPath('website.html'));
+      return;
+    }
+
+    throw new Error('Unknown user role.');
+
+  } catch (error) {
+    isRouting = false;
+    throw error;
   }
 }
 
 // ==========================================
-// 11. CREATE ACCOUNT
+// 12. CREATE ACCOUNT
 // ==========================================
 
 async function createAccount(phone, password) {
@@ -660,14 +675,13 @@ async function createAccount(phone, password) {
 }
 
 // ==========================================
-// 12. LOGIN
+// 13. LOGIN
 // ==========================================
 
 async function loginAccount(phone, password) {
   const candidates = getEmailCandidates(phoneInput.value);
 
   let successfulData = null;
-  let lastError = null;
 
   for (const email of candidates) {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -680,9 +694,6 @@ async function loginAccount(phone, password) {
       break;
     }
 
-    lastError = error;
-
-    // Stop if the error is not an invalid-credentials error.
     if (
       error &&
       !/invalid login credentials/i.test(error.message)
@@ -693,7 +704,7 @@ async function loginAccount(phone, password) {
 
   if (!successfulData?.user) {
     throw new Error(
-      'Login failed. Check the phone number and password, and verify the account email in Supabase Authentication > Users.'
+      'Login failed. Check the phone number and password.'
     );
   }
 
@@ -703,13 +714,13 @@ async function loginAccount(phone, password) {
 }
 
 // ==========================================
-// 13. FORM SUBMISSION
+// 14. FORM SUBMISSION
 // ==========================================
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  if (isSubmitting) return;
+  if (isSubmitting || isRouting) return;
 
   const phone = normalizePhone(phoneInput.value);
   const password = passwordInput.value;
@@ -751,40 +762,46 @@ form.addEventListener('submit', async (event) => {
     isSubmitting = false;
     submitButton.disabled = false;
 
-    submitButton.textContent =
-      mode === 'signup' ? 'CREATE ACCOUNT' : 'LOGIN TO ACCOUNT';
+    if (!isRouting) {
+      submitButton.textContent =
+        mode === 'signup' ? 'CREATE ACCOUNT' : 'LOGIN TO ACCOUNT';
+    }
   }
 });
 
 // ==========================================
-// 14. EXISTING SESSION
+// 15. EXISTING SESSION
 // ==========================================
 
 async function checkExistingSession() {
-  const { data, error } = await supabase.auth.getSession();
-
-  if (error) {
-    console.error('Session check error:', error);
-    return;
-  }
-
-  if (!data.session?.user) return;
-
   try {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data.session?.user) {
+      return;
+    }
+
     await redirectUser(data.session.user);
 
   } catch (error) {
     console.error('Session routing error:', error);
 
-    // If the current session has no valid role,
-    // leave the login form available.
-    await supabase.auth.signOut();
+    isRouting = false;
 
     showNotice(
-      'Could not verify your account role. Please log in again.',
+      'Could not verify your account. Please log in again.',
       true
     );
   }
 }
 
+// ==========================================
+// 16. INITIALIZE LOGIN PAGE
+// ==========================================
+
+setMode('login');
 checkExistingSession();
