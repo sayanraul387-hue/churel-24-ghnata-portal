@@ -369,7 +369,6 @@ header {
   line-height: 2;
   font-size: 15px;
 }
-
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -606,6 +605,7 @@ footer strong { color: var(--accent); }
   z-index: 90;
   box-shadow: 0 5px 20px #8b5cf644;
 }
+
 /* MCQ SECTION */
 
 .mcq-member-card {
@@ -869,7 +869,6 @@ footer strong { color: var(--accent); }
 }
 </style>
 </head>
-
 <body>
 
 <div id="loading-screen">
@@ -890,8 +889,6 @@ footer strong { color: var(--accent); }
     <nav class="nav-links" id="navLinks">
       <a href="#home" class="active">Home</a>
       <a href="#about">About</a>
-      <a href="#features">Features</a>
-      <a href="#member">Member</a>
       <a href="#contact">Contact Us</a>
     </nav>
 
@@ -919,7 +916,6 @@ footer strong { color: var(--accent); }
 
     <div class="hero-buttons">
       <a href="#about" class="primary-btn">Explore More →</a>
-      <a href="#member" class="secondary-btn">My Profile</a>
     </div>
 
   </div>
@@ -942,56 +938,6 @@ footer strong { color: var(--accent); }
         হয় আমি চুড়েল সবং এর নতুন পত্রিকা মাধ্যম . কোনো ব্যাপারে আপনাদের জানতে হলে আমাকে কন্টাক্ট করুন . আমার মোবাইল নো:- ৯৭ সাকসাক ৯৫ ঘাপঘাপ .
       </div>
     </article>
-
-  </section>
-
-  <section class="container reveal" id="features">
-
-    <div class="section-heading">
-      <div class="section-label">Our Platform</div>
-      <h2>Portal Features</h2>
-      <p>Some important features available in this member portal.</p>
-    </div>
-
-    <div class="feature-grid">
-
-      <div class="feature-card">
-        <div class="feature-icon">🔐</div>
-        <h3>Secure Member Access</h3>
-        <p>Member access is protected through account authentication.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">👤</div>
-        <h3>Member Profile</h3>
-        <p>View your registered name and phone number in one place.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">📢</div>
-        <h3>Latest Information</h3>
-        <p>Read information and announcements published by the administrator.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">📱</div>
-        <h3>Responsive Design</h3>
-        <p>Access the portal through desktop, tablet and mobile devices.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <h3>Simple Interface</h3>
-        <p>Navigate between different sections using a clean interface.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🌙</div>
-        <h3>Theme Settings</h3>
-        <p>Switch between dark and light display modes.</p>
-      </div>
-
-    </div>
 
   </section>
 
@@ -1024,88 +970,26 @@ footer strong { color: var(--accent); }
     </div>
 
   </section>
-  <section class="container reveal" id="member">
 
-  <div class="section-heading">
-    <div class="section-label">Personal Dashboard</div>
-    <h2>Member Information</h2>
-    <p>Your registered account information.</p>
-  </div>
+  <section class="container reveal" id="contact">
 
-  <div class="profile-panel">
+    <div class="contact-box">
 
-    <div class="profile-card">
+      <div class="section-label">Get In Touch</div>
 
-      <div class="profile-top">
-        <div class="avatar" id="avatar">M</div>
-
-        <div>
-          <h3 id="profile-name">Loading...</h3>
-          <p>Registered Member</p>
-        </div>
-      </div>
-
-      <div class="profile-info">
-        <span>Full Name</span>
-        <strong id="profile-name-2">Loading...</strong>
-      </div>
-
-      <div class="profile-info">
-        <span>Phone Number</span>
-
-        <div>
-          <strong id="profile-phone">Loading...</strong>
-          <button class="copy-btn" id="copyPhone" type="button">Copy</button>
-        </div>
-      </div>
-
-      <div class="profile-info">
-        <span>Account Type</span>
-        <strong>Member</strong>
-      </div>
-
-    </div>
-
-    <div class="status-card">
-
-      <div class="check">✓</div>
-
-      <h3>Account Verified</h3>
+      <h2>Need Assistance?</h2>
 
       <p>
-        Your member account has been successfully authenticated.
-        You can access the member portal using your registered account.
+        If you have any questions about your member account
+        or the information displayed on this portal,
+        please contact the portal administrator.
       </p>
 
-      <div class="status-badge">● ACCOUNT ACTIVE</div>
+      <a href="mailto:">Contact Administrator</a>
 
     </div>
 
-  </div>
-
-  <p id="status"></p>
-
-</section>
-
-<section class="container reveal" id="contact">
-
-  <div class="contact-box">
-
-    <div class="section-label">Get In Touch</div>
-
-    <h2>Need Assistance?</h2>
-
-    <p>
-      If you have any questions about your member account
-      or the information displayed on this portal,
-      please contact the portal administrator.
-    </p>
-
-    <a href="mailto:">Contact Administrator</a>
-
-  </div>
-
-</section>
+  </section>
 
 </main>
 
@@ -1210,31 +1094,6 @@ async function startWebsite() {
       window.location.replace(BASE_URL);
       return;
     }
-
-    /* LOAD MEMBER PROFILE */
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('full_name, phone')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (profileError) {
-      throw profileError;
-    }
-
-    if (!profile) {
-      throw new Error('Member profile not found.');
-    }
-
-    setText('profile-name', profile.full_name);
-    setText('profile-name-2', profile.full_name);
-    setText('profile-phone', profile.phone);
-
-    const firstLetter =
-      (profile.full_name || 'M').trim().charAt(0).toUpperCase();
-
-    setText('avatar', firstLetter);
 
     await loadMcqPractice();
     hideLoading();
@@ -1463,36 +1322,6 @@ themeBtn.addEventListener('click', () => {
   const isLight = document.body.classList.contains('light');
 
   themeBtn.textContent = isLight ? '☾' : '☀';
-
-});
-
-/* COPY PHONE NUMBER */
-
-document.getElementById('copyPhone').addEventListener('click', async () => {
-
-  const phone = document.getElementById('profile-phone').textContent;
-
-  if (!phone || phone === 'Loading...') {
-    return;
-  }
-
-  try {
-
-    await navigator.clipboard.writeText(phone);
-
-    const button = document.getElementById('copyPhone');
-
-    button.textContent = 'Copied!';
-
-    setTimeout(() => {
-      button.textContent = 'Copy';
-    }, 1500);
-
-  } catch (error) {
-
-    alert('Unable to copy phone number.');
-
-  }
 
 });
 
