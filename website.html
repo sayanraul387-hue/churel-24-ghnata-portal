@@ -883,54 +883,52 @@ footer strong { color: var(--accent); }
     margin: 0 auto 30px;
     border-radius: 24px;
 
-    animation:
-        logoFloat 3s ease-in-out infinite,
-        logoGlow 2.5s ease-in-out infinite alternate;
+    transform-style: preserve-3d;
+    will-change: transform, filter;
 
-    filter: drop-shadow(0 0 12px #8b5cf6);
-    transition: transform 0.5s ease;
-    cursor: pointer;
+    animation: churelLogoAnimation 4s ease-in-out infinite;
+
+    filter:
+        drop-shadow(0 0 12px #8b5cf6)
+        drop-shadow(0 0 25px #7c3aed);
 }
 
-/* Floating Animation */
-@keyframes logoFloat {
-    0%, 100% {
-        transform: translateY(0) rotate(0deg);
+@keyframes churelLogoAnimation {
+    0% {
+        transform: perspective(600px) translateY(0) rotateY(0deg) scale(1);
+        filter: drop-shadow(0 0 10px #8b5cf6);
     }
+
+    25% {
+        transform: perspective(600px) translateY(-18px) rotateY(90deg) scale(1.08);
+        filter: drop-shadow(0 0 25px #a78bfa);
+    }
+
     50% {
-        transform: translateY(-15px) rotate(5deg);
+        transform: perspective(600px) translateY(0) rotateY(180deg) scale(1);
+        filter: drop-shadow(0 0 35px #7c3aed);
+    }
+
+    75% {
+        transform: perspective(600px) translateY(-18px) rotateY(270deg) scale(1.08);
+        filter: drop-shadow(0 0 25px #c4b5fd);
+    }
+
+    100% {
+        transform: perspective(600px) translateY(0) rotateY(360deg) scale(1);
+        filter: drop-shadow(0 0 10px #8b5cf6);
     }
 }
 
-/* Neon Glow Animation */
-@keyframes logoGlow {
-    from {
-        filter: drop-shadow(0 0 8px #8b5cf6);
-    }
-    to {
-        filter:
-            drop-shadow(0 0 18px #a78bfa)
-            drop-shadow(0 0 35px #7c3aed);
-    }
-}
-
-/* Hover Effect */
 .hero-logo:hover {
-    transform: scale(1.15) rotate(10deg);
+    animation-play-state: paused;
+    transform: scale(1.2);
 }
 
-/* Mobile Responsive */
 @media (max-width: 600px) {
     .hero-logo {
-        width: 95px;
-        height: 95px;
-    }
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-    .hero-logo {
-        animation: none;
+        width: 100px;
+        height: 100px;
     }
 }
 
