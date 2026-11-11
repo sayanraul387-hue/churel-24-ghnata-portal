@@ -598,20 +598,21 @@ async function getUserRole(userId) {
 async function redirectUser(user) {
   const role = await getUserRole(user.id);
 
+  const base = import.meta.env.BASE_URL;
+
   if (role === 'admin') {
-    window.location.replace('/admin.html');
+    window.location.replace(`${base}admin.html`);
     return;
   }
 
   if (role === 'member') {
-    // Record activity, but do not block login if logging fails.
     const { error } = await supabase.rpc('record_member_login');
 
     if (error) {
       console.error('Login activity error:', error);
     }
 
-    window.location.replace('/website.html');
+    window.location.replace(`${base}website.html`);
   }
 }
 
