@@ -13,11 +13,27 @@ const supabase = createClient(
   }
 );
 
+// GitHub Pages base URL
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
 function setText(id, value) {
   const element = document.getElementById(id);
-  if (element) element.textContent = value ?? '';
+  if (element) {
+    element.textContent = value ?? '';
+  }
 }
 
+// Login page redirect
+function goToLogin() {
+  window.location.replace(BASE_URL);
+}
+
+// Admin dashboard redirect
+function goToAdmin() {
+  window.location.replace(`${BASE_URL}admin.html`);
+}
+
+// Start member website
 async function startWebsite() {
   try {
     // 1. Verify login session
@@ -27,12 +43,15 @@ async function startWebsite() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      window.location.replace('/');
+      goToLogin();
       return;
     }
 
     // 2. Verify account role
-    const { data: roleData, error: roleError } = await supabase
+    const {
+      data: roleData,
+      error: roleError
+    } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
@@ -43,22 +62,24 @@ async function startWebsite() {
     }
 
     if (!roleData) {
-      throw new Error('Account role not found. Please contact the administrator.');
+      throw new Error(
+        'Account role not found. Please contact the administrator.'
+      );
     }
 
-    // 3. Admin must use the admin dashboard
+    // 3. Admin must use admin dashboard
     if (roleData.role === 'admin') {
-      window.location.replace('/');
+      goToAdmin();
       return;
     }
 
     if (roleData.role !== 'member') {
       await supabase.auth.signOut();
-      window.location.replace('/');
+      goToLogin();
       return;
     }
 
-    // 4. Load this member's own profile
+    // 4. Load member profile
     const {
       data: profile,
       error: profileError
@@ -69,7 +90,9 @@ async function startWebsite() {
       .maybeSingle();
 
     if (profileError) {
-      throw new Error(`Profile loading failed: ${profileError.message}`);
+      throw new Error(
+        `Profile loading failed: ${profileError.message}`
+      );
     }
 
     if (!profile) {
@@ -93,10 +116,16 @@ async function startWebsite() {
       .maybeSingle();
 
     if (contentError) {
-      throw new Error(`Announcement loading failed: ${contentError.message}`);
+      throw new Error(
+        `Announcement loading failed: ${contentError.message}`
+      );
     }
 
-    setText('notice-title', content?.title || 'Welcome');
+    setText(
+      'notice-title',
+      content?.title || 'Welcome'
+    );
+
     setText(
       'notice-body',
       content?.body || 'No announcement available.'
@@ -111,27 +140,39 @@ async function startWebsite() {
   }
 }
 
-// 6. Logout
+// 6. Member Logout
 document.getElementById('logout')?.addEventListener(
   'click',
   async () => {
     const button = document.getElementById('logout');
 
-    button.disabled = true;
-    button.textContent = 'Signing out...';
-
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      button.disabled = false;
-      button.textContent = 'Logout';
-      alert(error.message);
-      return;
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Signing out...';
     }
 
-    window.location.replace('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+      // Return to the correct GitHub Pages login URL
+      goToLogin();
+
+    } catch (error) {
+      console.error('Logout error:', error);
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Logout';
+      }
+
+      alert(`Logout failed: ${error.message}`);
+    }
   }
 );
 
-// Start member website
+// 7. Start website
 startWebsite();
