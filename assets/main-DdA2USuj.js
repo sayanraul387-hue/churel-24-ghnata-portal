@@ -287,7 +287,7 @@ body {
 
         <img
           id="logo-image"
-          src="${new URL("/churel-24-ghnata-portal/assets/logo-DzrAklOG.png",import.meta.url).href}"
+          src="${new URL("/churel-24-ghnata-portal/assets/logo-JAArpqKY.png",import.meta.url).href}"
           alt="CHUREL Logo"
           hidden
         >
